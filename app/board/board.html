@@ -1,0 +1,14 @@
+Trello Inbox
+
+{{boards.name}}
+
+
+<ul class="unstyled">
+    <li ng-repeat="card in cards">
+        <input type="checkbox" ng-model="card.done">
+        <span class="">{{card.name}} - {{card.id}}</span>
+    </li>
+</ul>
+
+
+<p>This is the partial for view board.</p>
