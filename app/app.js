@@ -5,7 +5,8 @@ angular.module('myApp', [
   'ngRoute',
   'myApp.view1',
   'myApp.view2', 'myApp.board',
-  'myApp.version'
+  'myApp.version',
+    'ngMaterial'
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({redirectTo: '/board'});
