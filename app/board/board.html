@@ -1,32 +1,42 @@
 <md-content class="md-padding">
+    <div class="md-actions" layout="row" layout-align="end center">
+        <md-button class="md-raised" ng-if="!isLoggedIn" ng-click="trello_connect()"> Sign In </md-button>
+    </div>
+    <div class="headerbox">
+        <h4> <md-progress-circular ng-show="startLoad" md-mode="indeterminate" class="md-display-2"></md-progress-circular></h4>
+    </div>
 
-<md-button class="md-raised" ng-hide={{isLoggedIn}} ng-click="trello_connect()"> Connect Trello </md-button>
-<h1>Trello Inbox </h1>
+    <span class="md-primary" ng-if="cards.length === 0"> Empty - Sign in first / No Comment mentioned you! </span>
 
+    <md-card class="unstyled" ng-repeat="card in cards">
+        <md-toolbar class="md-theme-light">
+            <h2 class="md-toolbar-tools">
+                <span id="{{card.id}}">{{card.name}}</span>
+            </h2>
 
-<h2>{{board.name}}</h2>
+        </md-toolbar>
 
-<md-card class="unstyled" ng-repeat="card in cards">
-    <md-card-content >
-    <md-listn>
-        <md-subheader class="md-no-sticky">{{ filteredActions.length }} line item</md-subheader>
-        <md-subheader class="md-no-sticky"> Checkbox with Secondary Action </md-subheader>
-        <p class="" id="{{card.id}}">{{card.name}}</p>
-        <md-list-item ng-repeat="comment in filteredActions  = (card.actions | filter:type: commentCard)">
-            <md-checkbox ng-model="comment.read"></md-checkbox>
-            <div class="md-list-item-text">
-                <h3>{{comment.memberCreator.fullName}}</h3>
-                <h4>{{comment.data.text}}</h4>
-                <p>{{comment.date }}</p>
-            </div>
+        <md-card-content class="md-padding">
 
-            <md-icon class="md-secondary" ng-click="" aria-label="Chat" md-svg-icon="communication:message"></md-icon>
-        </md-list-item>
-    </md-listn>
-    </md-card-content>
-</md-card>
+        <md-subheader class="md-primary">{{ card.commentCard.length }} comments</md-subheader>
+        <md-list>
+            <md-list-item ng-repeat="comment in card.commentCard" ng-class="comment.read ? '':'md-whiteframe-z3'">
+                <img ng-if="comment.memberCreator.avatarHash != null" ng-src="{{ avatar_src(comment.memberCreator.avatarHash) }}" class="md-avatar" alt="{{comment.memberCreator.fullName}}" />
 
+                <md-button ng-if="comment.memberCreator.avatarHash == null" class="md-fab md-grey" aria-label="{{comment.memberCreator.fullName}}">{{comment.memberCreator.initials}}
+                </md-button>
 
-<p>This is the partial for view board.</p>
+                <div class="md-list-item-text">
+
+                    <h3>{{comment.memberCreator.fullName}}</h3>
+                    <h4>{{comment.data.text}}</h4>
+                    <p>{{comment.date | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+                </div>
+                <md-checkbox class="md-secondary" ng-model="comment.read"></md-checkbox>
+            </md-list-item>
+        </md-list>
+        </md-card-content>
+        <br/>
+    </md-card>
 
 </md-content>

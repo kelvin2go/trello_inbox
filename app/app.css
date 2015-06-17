@@ -29,6 +29,8 @@
   padding: 0;
 }
 
+.carddemoBasicUsage md-card {
+    min-height: 150px; }
 
 .buttondemoBasicUsage section {
     background: #f7f7f7;
@@ -47,4 +49,8 @@
     bottom: 5px;
     left: 7px;
     font-size: 14px;
-    opacity: 0.54; }
+    opacity: 0.54;
+}
+.headerbox md-progress-circular {
+    margin: auto;
+}

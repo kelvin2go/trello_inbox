@@ -18,24 +18,17 @@ angular.module('myApp.view1', ['ngRoute'])
             cards: api_base+"/cards/"+api_keys,
         }
 
+        $http.get(api_url.board).
+        success(function(data, status, headers, config) {
+            $scope.boards = data;
+            console.log( data);
+        });
 
-        var trello =  {
-            get_boards: function () {
-                $http.get(api_url.board).
-                success(function(data, status, headers, config) {
-                    $scope.boards = data;
-                    console.log( data);
-                });
-            },
-            get_cards: function () {
-                $http.get(api_url.cards).
-                success(function (data, status, headers, config) {
-                    $scope.cards = data;
-                    console.log(data);
-                });
-            }
-        };
+        $http.get(api_url.cards).
+        success(function(data, status, headers, config) {
+            $scope.cards = data;
+            console.log( data);
+        });
 
-        trello.get_boards();
-        trello.get_cards();
+
 }]);
