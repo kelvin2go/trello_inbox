@@ -1,42 +1,69 @@
 <md-content class="md-padding">
-    <div class="md-actions" layout="row" layout-align="end center">
+
+    <div class="md-actions" layout="row" layout-align="center center">
         <md-button class="md-raised" ng-if="!isLoggedIn" ng-click="trello_connect()"> Sign In </md-button>
     </div>
     <div class="headerbox">
         <h4> <md-progress-circular ng-show="startLoad" md-mode="indeterminate" class="md-display-2"></md-progress-circular></h4>
     </div>
 
-    <span class="md-primary" ng-if="cards.length === 0"> Empty - Sign in first / No Comment mentioned you! </span>
+    <div layout="column" layout-align="center center">
+    <div><span class="md-primary" ng-if="!isLoggedIn"> Please Sign in first </span></div>
+    <div><span class="md-primary" ng-if="isLoggedIn && cards.length === 0"> Empty - no comments! </span></div>
+    </div>
 
-    <md-card class="unstyled" ng-repeat="card in cards">
+
+    <md-card class="unstyled" ng-repeat="board in boards">
         <md-toolbar class="md-theme-light">
             <h2 class="md-toolbar-tools">
-                <span id="{{card.id}}">{{card.name}}</span>
+                <span id="{{board.board.id}}">{{board.board.name}}</span>
             </h2>
-
         </md-toolbar>
 
-        <md-card-content class="md-padding">
+        <div ng-repeat="list in board.lists">
+            <div ng-repeat="card in ( cards | filter: {idList: list.id } )">
+            <md-toolbar md-theme="altTheme" class="">
+                <h2 class="md-toolbar-tools" >
+                    <span id="{{card.id}}">{{board.board.name}} > {{ list.name }} > {{card.name}} <a href="{{card.shortUrl}}" target="_blank"><i class="fa fa-external-link"></i></a></span>
+                </h2>
+            </md-toolbar>
 
-        <md-subheader class="md-primary">{{ card.commentCard.length }} comments</md-subheader>
-        <md-list>
-            <md-list-item ng-repeat="comment in card.commentCard" ng-class="comment.read ? '':'md-whiteframe-z3'">
-                <img ng-if="comment.memberCreator.avatarHash != null" ng-src="{{ avatar_src(comment.memberCreator.avatarHash) }}" class="md-avatar" alt="{{comment.memberCreator.fullName}}" />
+            <md-card-content class="md-padding">
 
-                <md-button ng-if="comment.memberCreator.avatarHash == null" class="md-fab md-grey" aria-label="{{comment.memberCreator.fullName}}">{{comment.memberCreator.initials}}
-                </md-button>
+                <md-subheader class="md-primary">{{ card.commentCard.length }} comments</md-subheader>
+                <md-list ng-repeat="comment in card.commentCard" ng-class="comment.read ? '':'md-whiteframe-z3'">
+                        <md-list-item >
+                            <img ng-if="comment.memberCreator.avatarHash != null" ng-src="{{ avatar_src(comment.memberCreator.avatarHash) }}" class="md-avatar" alt="{{comment.memberCreator.fullName}}" />
 
-                <div class="md-list-item-text">
+                            <md-button ng-if="comment.memberCreator.avatarHash == null" class="md-fab md-grey" aria-label="{{comment.memberCreator.fullName}}">{{comment.memberCreator.initials}}
+                            </md-button>
 
-                    <h3>{{comment.memberCreator.fullName}}</h3>
-                    <h4>{{comment.data.text}}</h4>
-                    <p>{{comment.date | date:'yyyy-MM-dd HH:mm:ss'}}</p>
-                </div>
-                <md-checkbox class="md-secondary" ng-model="comment.read"></md-checkbox>
-            </md-list-item>
-        </md-list>
-        </md-card-content>
-        <br/>
+                            <div class="md-list-item-text">
+                                <p>{{comment.date | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+
+                                <h3 class="md-default-theme">{{comment.data.text}}</h3>
+                                <h4 class="author"> by {{comment.memberCreator.fullName}} </h4>
+                            </div>
+
+                            <md-checkbox class="md-secondary" ng-model="comment.read"></md-checkbox>
+
+                        </md-list-item>
+                        <md-list-item>
+                            <div layout="row" flex="100" ng-show="comment.read" >
+                                <form name="projectForm" flex="100">
+                                    <md-input-container>
+                                        <label>Reply to {{comment.memberCreator.fullName}} </label>
+                                        <textarea ng-model="commentText" columns="1" md-maxlength="16000"></textarea>
+                                    </md-input-container>
+                                    <md-button class="md-secondary" ng-click="reply(card.id, commentText,comment.memberCreator.username)">submit</md-button>
+                                </form>
+                            </div>
+                        </md-list-item >
+                </md-list>
+            </md-card-content>
+            <br/>
+            </div>
+        </div>
     </md-card>
 
 </md-content>

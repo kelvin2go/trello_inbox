@@ -10,4 +10,9 @@ angular.module('myApp', [
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({redirectTo: '/board'});
-}]);
+}])
+.config(function($mdThemingProvider) {
+    $mdThemingProvider.theme('altTheme')
+        .primaryPalette('light-green') // specify primary color, all
+});
+;

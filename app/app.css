@@ -54,3 +54,13 @@
 .headerbox md-progress-circular {
     margin: auto;
 }
+.md-list-item-text{
+    width: 79%;
+}
+
+.md-list-item-text .author{
+    text-align: right;
+}
+
+.fabToolbardemoBasicUsage md-fab-toolbar.md-left md-fab-trigger.align-with-text {
+left: 7px; }
