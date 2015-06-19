@@ -2,6 +2,9 @@
 
 This is an angular-seed based project to retrieve Trello cards
 
+angular seed , angular locale storage,  angular material, bootstrap, font awesome
+
+
 The public trello board:
 https://trello.com/b/BhgC1yD8/kelvin-public
 

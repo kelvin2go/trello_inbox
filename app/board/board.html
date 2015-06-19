@@ -56,7 +56,7 @@
                                 <h3 class="md-default-theme">{{comment.data.text}}</h3>
                                 <h4 class="author"> by {{comment.memberCreator.fullName}} </h4>
                             </div>
-                            <md-checkbox class="md-secondary" ng-model="comment.read" aria-label="{{comment.read}}" ng-click="saveRead(comment.id, comment.read, 'read')"></md-checkbox>
+                            <md-checkbox class="md-secondary" ng-model="comment.read" aria-label="{{comment.id}}" ng-click="saveRead(comment.id, comment.read, 'read')"></md-checkbox>
 
                         </md-list-item>
                         <md-list-item class="replyComment">
