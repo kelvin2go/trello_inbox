@@ -9,7 +9,7 @@ angular.module('myApp.board', ['ngRoute'])
   });
 }])
 
-.controller('BoardCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
+.controller('BoardCtrl', ['$scope', '$http', '$timeout', 'localStorageService',function($scope, $http, $timeout, localStorageService) {
         var api_token = "b62ae66df753b631c7a8858bc66eae8e";
         var api_base =  "https://api.trello.com/1/";
         $scope.board_cur = "55802d1c66c99fb65297d524";
@@ -23,6 +23,9 @@ angular.module('myApp.board', ['ngRoute'])
         $scope.avatar_src = function( avatarHash ){
             return "https://trello-avatars.s3.amazonaws.com/"+avatarHash+"/170.png";
         }
+
+        $scope.searchQuery = "",
+        $scope.sQuery = [],
         $scope.isLoggedIn = false,
         $scope.startLoad = false,
         $scope.boardIds = [],
@@ -48,7 +51,7 @@ angular.module('myApp.board', ['ngRoute'])
                     });
             },
             get_cards: function() {
-                Trello.get("members/me/cards", {actions: "commentCard,action_memberCreator_fields"}, function(cards) {
+                Trello.get("members/me/cards", {actions: "commentCard,action_memberCreator_fields", fields:"all"}, function(cards) {
                     console.log("cards");
                     //console.log(cards);
                     $scope.cards = [];
@@ -59,7 +62,8 @@ angular.module('myApp.board', ['ngRoute'])
                             newCard.commentCard = [];
                             item.actions.forEach( function( action ){
                                 if ( action.type == 'commentCard' && action.data.text.indexOf("@"+$scope.myprofile.username) > -1 ){
-                                    action.read = false;
+                                    action.read = $scope.getRead(action.id, 'read');
+                                    action.replied = $scope.getRead(action.id, 'replied');
                                     newCard.commentCard.push( action );
 
                                     var tList = [];
@@ -100,9 +104,11 @@ angular.module('myApp.board', ['ngRoute'])
                     console.log( $scope.cards );
                 });
             },
-            post_comment: function( cardId , commentText ){
+            post_comment: function( cardId , commentId, commentText, replyTo ){
+                commentText= "@"+replyTo + " "+ commentText ;
                 Trello.post("cards/"+cardId+"/actions/comments", {text: commentText}, function( result ){
                     //console.log(result);
+                    $scope.saveRead( commentId, commentText, 'replied' );
                 });
             },
             get_mentioned_cards : function () {
@@ -115,7 +121,7 @@ angular.module('myApp.board', ['ngRoute'])
                     }, 800);
                     $scope.$apply();
                 });
-            },
+            }
         };
 
         function onAuthorize(){
@@ -128,7 +134,38 @@ angular.module('myApp.board', ['ngRoute'])
             $scope.isLoggedIn = Trello.authorized();
         }
 
+        $scope.search = function ( searchStr ){
+            console.log( $scope.searchQuery );
+            //var searchStr = $scope.searchQuery ;
+            var search_ary = searchStr.split(" ");
+            console.log(search_ary);
+            $scope.sQuery = [];
+
+            for( var i = 0; i<search_ary.length ; i++ ){
+                if( search_ary[i].startsWith('list')){
+                    $scope.sQuery['card'] = { closed: search_ary[i].replace("list:", "") };
+                    continue;
+                }
+                if( search_ary[i].startsWith('board')){
+                    $scope.sQuery['card'] = {$: search_ary[i].replace("board:", "") };
+                    continue;
+                }
+                if( search_ary[i].startsWith('card')){
+                    $scope.sQuery['card'] = {$: search_ary[i].replace("card:", "") };
+                    continue;
+                }
+                if( search_ary[i].startsWith('@')){
+                    $scope.sQuery['card'] = {$: search_ary[i] };
+                    continue;
+                }
+                $scope.sQuery['card'] = { $: search_ary[i] }  ;
+
+            }
+            console.log( $scope.sQuery );
+        }
+
         //init Action
+        //localStorageService.clearAll();
         $scope.trello_connect = appTrello.get_user_token;
         $scope.isLoggedIn = Trello.authorized();
         if ( $scope.isLoggedIn ){
@@ -136,4 +173,26 @@ angular.module('myApp.board', ['ngRoute'])
         }
         $scope.reply = appTrello.post_comment;
         $scope.timeNow = new Date();
+
+        $scope.saveRead = function( id, value, action ){
+            action = typeof action !== 'undefined' ? "_"+action : '';
+            console.log( "SAVE: " + "card_"+id+action );
+            console.log( value );
+            localStorageService.set("card_"+id+action, value);
+        }
+        $scope.getRead = function ( id , action ){
+            action = typeof action !== 'undefined' ? "_"+action : '';
+            console.log("GET: " + "card_"+id+action);
+            var value = localStorageService.get("card_"+id+action);
+            console.log( value );
+            return value;
+        }
+
+        function lsKeys(){
+            return localStorageService.keys()
+        }
+        function lsClearAll() {
+            return localStorageService.clearAll();
+        }
+
 }]);

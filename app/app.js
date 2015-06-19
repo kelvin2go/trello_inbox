@@ -4,9 +4,11 @@
 angular.module('myApp', [
   'ngRoute',
   'myApp.view1',
-  'myApp.view2', 'myApp.board',
+  'myApp.view2',
+  'myApp.board',
   'myApp.version',
-    'ngMaterial'
+  'ngMaterial',
+  'LocalStorageModule'
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.otherwise({redirectTo: '/board'});
@@ -14,5 +16,10 @@ config(['$routeProvider', function($routeProvider) {
 .config(function($mdThemingProvider) {
     $mdThemingProvider.theme('altTheme')
         .primaryPalette('light-green') // specify primary color, all
-});
-;
+})
+.config(['localStorageServiceProvider', function (localStorageServiceProvider) {
+    localStorageServiceProvider
+        .setPrefix('tr')
+        .setNotify(true, true);
+}]);
+
