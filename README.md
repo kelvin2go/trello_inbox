@@ -6,6 +6,7 @@ The public trello board:
 https://trello.com/b/BhgC1yD8/kelvin-public
 
 
+
 ## Start
 ```
 npm install
@@ -14,3 +15,12 @@ http://localhost:8000/app/index.html
 ```
 
 
+## Search
+property search
+```
+comment.read:true
+```
+text search
+```
+hello
+```

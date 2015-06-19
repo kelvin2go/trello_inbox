@@ -2,14 +2,14 @@
 
 angular.module('myApp.board', ['ngRoute'])
 
-.config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/board', {
-    templateUrl: 'board/board.html',
-    controller: 'BoardCtrl'
-  });
-}])
+    .config(['$routeProvider', function($routeProvider) {
+        $routeProvider.when('/board', {
+            templateUrl: 'board/board.html',
+            controller: 'BoardCtrl'
+        });
+    }])
 
-.controller('BoardCtrl', ['$scope', '$http', '$timeout', 'localStorageService',function($scope, $http, $timeout, localStorageService) {
+    .controller('BoardCtrl', ['$scope', '$http', '$timeout', 'localStorageService',function($scope, $http, $timeout, localStorageService) {
         var api_token = "b62ae66df753b631c7a8858bc66eae8e";
         var api_base =  "https://api.trello.com/1/";
         $scope.board_cur = "55802d1c66c99fb65297d524";
@@ -25,13 +25,13 @@ angular.module('myApp.board', ['ngRoute'])
         }
 
         $scope.searchQuery = "",
-        $scope.sQuery = [],
-        $scope.isLoggedIn = false,
-        $scope.startLoad = false,
-        $scope.boardIds = [],
-        $scope.boards = [];
+            $scope.sQuery = [],
+            $scope.isLoggedIn = false,
+            $scope.startLoad = false,
+            $scope.boardIds = [],
+            $scope.boards = [];
         $scope.listIds = [],
-        $scope.lists = [];
+            $scope.lists = [];
         $scope.cards = [];
 
         var appTrello =  {
@@ -52,7 +52,7 @@ angular.module('myApp.board', ['ngRoute'])
             },
             get_cards: function() {
                 Trello.get("members/me/cards", {actions: "commentCard,action_memberCreator_fields", fields:"all"}, function(cards) {
-                    console.log("cards");
+                    //console.log("get my cards");
                     //console.log(cards);
                     $scope.cards = [];
                     cards.forEach ( function( item ) {
@@ -83,7 +83,6 @@ angular.module('myApp.board', ['ngRoute'])
                                         }
                                     }
 
-
                                 }
                             });
                             //console.log(newCard.commentCard);
@@ -113,8 +112,6 @@ angular.module('myApp.board', ['ngRoute'])
             },
             get_mentioned_cards : function () {
                 Trello.get("/members/me/notifications", {filter:"mentionedOnCard",board_fields:"all",list_fields:"all"}, function(cards){
-                    console.log(" notify ");
-                    console.log(cards);
                     $scope.cards = cards;
                     $timeout(function () {
                         $scope.startLoad = false;
@@ -135,32 +132,52 @@ angular.module('myApp.board', ['ngRoute'])
         }
 
         $scope.search = function ( searchStr ){
-            console.log( $scope.searchQuery );
+            //console.log( $scope.searchQuery );
             //var searchStr = $scope.searchQuery ;
             var search_ary = searchStr.split(" ");
-            console.log(search_ary);
             $scope.sQuery = [];
-
+            var search_obj = {card:{}, board:{}, list:{}};
             for( var i = 0; i<search_ary.length ; i++ ){
                 if( search_ary[i].startsWith('list')){
-                    $scope.sQuery['card'] = { closed: search_ary[i].replace("list:", "") };
+                    var search_map = search_ary[i].replace("list.", "").split(":");
+                    var obj = {};
+                    obj[search_map[0]]=search_map[1]
+                    search_obj.list =  obj ;
+                    search_obj.card =  obj ;
                     continue;
                 }
                 if( search_ary[i].startsWith('board')){
-                    $scope.sQuery['card'] = {$: search_ary[i].replace("board:", "") };
+                    var search_map = search_ary[i].replace("board.", "").split(":");
+                    var obj = {};
+                    obj[search_map[0]]=search_map[1];
+                    search_obj.board = obj ;
                     continue;
                 }
                 if( search_ary[i].startsWith('card')){
-                    $scope.sQuery['card'] = {$: search_ary[i].replace("card:", "") };
+                    var search_map = search_ary[i].replace("card.", "").split(":");
+                    var obj = {};
+                    obj[search_map[0]]=search_map[1];
+                    search_obj.card = obj;
+                    continue;
+                }
+                if( search_ary[i].startsWith('comment')){
+                    var search_map = search_ary[i].replace("comment.", "").split(":");
+                    var obj = {};
+                    obj[search_map[0]]=search_map[1];
+                    search_obj.comment = obj;
                     continue;
                 }
                 if( search_ary[i].startsWith('@')){
-                    $scope.sQuery['card'] = {$: search_ary[i] };
+                    search_obj.comment = {memberCreator:{$:search_ary[i].replace("@","")}};
                     continue;
                 }
-                $scope.sQuery['card'] = { $: search_ary[i] }  ;
+                if ( search_ary[i] !== "") {
+                    search_obj.card = { $: search_ary[i] } ;
+                    search_obj.comment= { $: search_ary[i] } ;
+                }
 
             }
+            $scope.sQuery = search_obj;
             console.log( $scope.sQuery );
         }
 
@@ -176,15 +193,15 @@ angular.module('myApp.board', ['ngRoute'])
 
         $scope.saveRead = function( id, value, action ){
             action = typeof action !== 'undefined' ? "_"+action : '';
-            console.log( "SAVE: " + "card_"+id+action );
-            console.log( value );
+            //console.log( "SAVE: " + "card_"+id+action );
+            //console.log( value );
             localStorageService.set("card_"+id+action, value);
         }
         $scope.getRead = function ( id , action ){
             action = typeof action !== 'undefined' ? "_"+action : '';
-            console.log("GET: " + "card_"+id+action);
+            //console.log("GET: " + "card_"+id+action);
             var value = localStorageService.get("card_"+id+action);
-            console.log( value );
+            //console.log( value );
             return value;
         }
 
@@ -195,4 +212,4 @@ angular.module('myApp.board', ['ngRoute'])
             return localStorageService.clearAll();
         }
 
-}]);
+    }]);

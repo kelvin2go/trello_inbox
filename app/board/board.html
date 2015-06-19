@@ -4,12 +4,11 @@
         <md-button class="md-raised" ng-if="!isLoggedIn" ng-click="trello_connect()"> Sign In </md-button>
     </div>
 
-    <form name="searchForm" ng-submi="search(searchQuery)">
+    <form name="searchForm">
         <md-input-container ng-if="isLoggedIn" md-no-float="" class="md-default-theme searchInputContainer">
             <span class="md-icon" type="submit" ng-click="search(searchQuery)"><i class="fa fa-search"></i></span>
-            <input ng-model="searchQuery" type="text" placeholder="Search">
+            <input ng-model="searchQuery" type="text" placeholder="Search" ng-keyup="search(searchQuery)">
         </md-input-container>
-
     </form>
     <div class="headerbox">
         <h4> <md-progress-circular ng-show="startLoad" md-mode="indeterminate" class="md-display-2"></md-progress-circular></h4>
@@ -41,7 +40,7 @@
                     <md-subheader class="md-primary"> {{ card.badges.comments }} comments <span class="badge">{{ card.commentCard.length }}  </span> mentioned you
 
                     </md-subheader>
-                    <md-list ng-repeat="comment in card.commentCard" ng-class="comment.read ? '':'md-whiteframe-z3'">
+                    <md-list ng-repeat="comment in card.commentCard | filter: sQuery.comment " ng-class="comment.read ? '':'md-whiteframe-z3'">
                         <md-list-item id="{{comment.id}}" class="mainComment">
                             <img ng-if="comment.memberCreator.avatarHash != null" ng-src="{{ avatar_src(comment.memberCreator.avatarHash) }}" class="md-avatar" alt="{{comment.memberCreator.fullName}}" />
 
@@ -49,16 +48,15 @@
                             </md-button>
 
                             <div class="md-list-item-text">
-                                <p>{{comment.date | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+                                <p>{{comment.date | date:'yyyy-MM-dd HH:mm:ss'}}
+                                    <span class="label label-info" ng-if="comment.read " ng-click="saveRead(comment.id, false, 'read')" > READ </span>
+                                    <span class="label label-success" ng-if="comment.replied"> REPLIED </span>
+                                </p>
 
                                 <h3 class="md-default-theme">{{comment.data.text}}</h3>
                                 <h4 class="author"> by {{comment.memberCreator.fullName}} </h4>
                             </div>
-                            <div class="badge-container md-secondary">
-                                <span class="label label-info" ng-if="comment.read " ng-click="saveRead(comment.id, false, 'read')" > READ </span>
-                                <span class="label label-success" ng-if="comment.replied"> REPLIED </span>
-                                <md-checkbox class="md-secondary" ng-hide="comment.read || comment.replied" ng-model="comment.read" ng-click="saveRead(comment.id, comment.read, 'read')"></md-checkbox>
-                            </div>
+                            <md-checkbox class="md-secondary" ng-model="comment.read" aria-label="{{comment.read}}" ng-click="saveRead(comment.id, comment.read, 'read')"></md-checkbox>
 
                         </md-list-item>
                         <md-list-item class="replyComment">
@@ -70,6 +68,7 @@
                                         <textarea ng-model="commentText" columns="1" md-maxlength="16000"></textarea>
                                     </md-input-container>
                                     <md-button class="md-secondary" type="submit">submit</md-button>
+                                    <input type="submit" class="hide" value="submit"/>
                                 </form>
                             </div>
                         </md-list-item >
